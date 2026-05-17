@@ -60,6 +60,21 @@ cp charts/stoatchat/values.yaml /tmp/stoatchat-values.yaml
 helm upgrade --install stoatchat charts/stoatchat -n stoatchat --create-namespace -f /tmp/stoatchat-values.yaml
 ```
 
+## Install from OCI
+
+The CI workflow publishes chart packages to GHCR as OCI artifacts.
+
+```bash
+# login (if your package visibility requires auth)
+echo "${GITHUB_TOKEN}" | helm registry login ghcr.io -u <github-user> --password-stdin
+
+# install directly from OCI
+helm install stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.0 -n stoatchat --create-namespace
+
+# or upgrade using OCI source
+helm upgrade stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.0 -n stoatchat
+```
+
 ## Using existing secrets/config
 
 If you already have managed resources:
@@ -74,4 +89,4 @@ If you already have managed resources:
 
 ## CI workflow
 
-This repo includes `.github/workflows/build-chart.yml` to lint, template, and package the chart on pushes and pull requests.
+This repo includes `.github/workflows/build-chart.yml` to lint/template/package the chart and push it to GHCR on push events.

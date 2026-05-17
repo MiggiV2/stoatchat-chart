@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^charts/stoatchat/values\\.ya?ml$"],
+      "matchStrings": [
+        "image:\\s*(?<depName>ghcr\\.io/stoatchat/[a-z0-9-]+):(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/stoatchat/**"],
+      "groupName": "stoatchat downstream images"
+    }
+  ]
+}
