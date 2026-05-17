@@ -1,0 +1,98 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "stoatchat.fullname" . }}
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ include "stoatchat.ingressHost" . }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ include "stoatchat.ingressHost" . }}
+      http:
+        paths:
+          {{- if .Values.components.api.enabled }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-api
+                port:
+                  number: {{ .Values.components.api.port }}
+          {{- end }}
+          {{- if .Values.components.events.enabled }}
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-events
+                port:
+                  number: {{ .Values.components.events.port }}
+          {{- end }}
+          {{- if .Values.components.autumn.enabled }}
+          - path: /autumn
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-autumn
+                port:
+                  number: {{ .Values.components.autumn.port }}
+          {{- end }}
+          {{- if .Values.components.january.enabled }}
+          - path: /january
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-january
+                port:
+                  number: {{ .Values.components.january.port }}
+          {{- end }}
+          {{- if .Values.components.gifbox.enabled }}
+          - path: /gifbox
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-gifbox
+                port:
+                  number: {{ .Values.components.gifbox.port }}
+          {{- end }}
+          {{- if .Values.components.livekit.enabled }}
+          - path: /livekit
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-livekit
+                port:
+                  number: {{ .Values.components.livekit.port }}
+          {{- end }}
+          {{- if .Values.components.voiceIngress.enabled }}
+          - path: /ingress
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-voice-ingress
+                port:
+                  number: {{ .Values.components.voiceIngress.port }}
+          {{- end }}
+          {{- if .Values.components.web.enabled }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-web
+                port:
+                  number: {{ .Values.components.web.port }}
+          {{- end }}
+{{- end }}

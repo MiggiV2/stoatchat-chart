@@ -1,0 +1,11 @@
+{{- if not .Values.config.existingRevoltTomlConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stoatchat.revoltConfigMapName" . }}
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+data:
+  Revolt.toml: |
+{{ tpl .Values.config.revoltToml . | indent 4 }}
+{{- end }}

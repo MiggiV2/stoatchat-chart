@@ -1,0 +1,138 @@
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  domain: chat.example.com
+  imagePullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+  host: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+infrastructure:
+  mongodb:
+    enabled: false
+    uri: "mongodb://database:27017/revolt"
+  redis:
+    enabled: false
+    address: "redis:6379"
+  rabbitmq:
+    enabled: false
+    address: "amqp://rabbituser:rabbitpass@rabbit:5672"
+  minio:
+    enabled: false
+    endpoint: "http://minio:9000"
+    bucket: "revolt-uploads"
+    accessKey: "minioautumn"
+    secretKey: "minioautumn"
+
+existingSecretsName: ""
+secrets:
+  REVOLT__PUSHD__VAPID__PRIVATE_KEY: "replace-me"
+  REVOLT__PUSHD__VAPID__PUBLIC_KEY: "replace-me"
+  REVOLT__FILES__ENCRYPTION_KEY: "replace-me"
+  REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY: "replace-me"
+  REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET: "replace-me"
+
+config:
+  existingRevoltTomlConfigMap: ""
+  existingLivekitConfigMap: ""
+  webEnv:
+    VITE_CFG_ENABLE_VIDEO: "false"
+  revoltToml: |
+    [hosts]
+    app = "https://{{ .Values.global.domain }}"
+    api = "https://{{ .Values.global.domain }}/api"
+    events = "wss://{{ .Values.global.domain }}/ws"
+    autumn = "https://{{ .Values.global.domain }}/autumn"
+    january = "https://{{ .Values.global.domain }}/january"
+    gifbox = "https://{{ .Values.global.domain }}/gifbox"
+
+    [hosts.livekit]
+    worldwide = "wss://{{ .Values.global.domain }}/livekit"
+
+    [api.livekit.nodes.worldwide]
+    url = "http://{{ include "stoatchat.fullname" . }}-livekit:7880"
+    lat = 0.0
+    lon = 0.0
+  livekitYaml: |
+    rtc:
+      use_external_ip: true
+      port_range_start: 50000
+      port_range_end: 50100
+      tcp_port: 7881
+
+    redis:
+      address: {{ .Values.infrastructure.redis.address | quote }}
+
+    turn:
+      enabled: false
+
+    keys:
+      {{ .Values.secrets.REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY }}: {{ .Values.secrets.REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET }}
+
+    webhook:
+      api_key: {{ .Values.secrets.REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY }}
+      urls:
+      - "http://{{ include \"stoatchat.fullname\" . }}-voice-ingress:8500/worldwide"
+
+components:
+  api:
+    enabled: true
+    image: ghcr.io/stoatchat/api:v0.12.0
+    replicaCount: 1
+    port: 14702
+  events:
+    enabled: true
+    image: ghcr.io/stoatchat/events:v0.12.0
+    replicaCount: 1
+    port: 14703
+  autumn:
+    enabled: true
+    image: ghcr.io/stoatchat/file-server:v0.12.0
+    replicaCount: 1
+    port: 14704
+  january:
+    enabled: true
+    image: ghcr.io/stoatchat/proxy:v0.12.0
+    replicaCount: 1
+    port: 14705
+  gifbox:
+    enabled: true
+    image: ghcr.io/stoatchat/gifbox:v0.12.0
+    replicaCount: 1
+    port: 14706
+  crond:
+    enabled: true
+    image: ghcr.io/stoatchat/crond:v0.12.0
+    replicaCount: 1
+    port: 14707
+  pushd:
+    enabled: true
+    image: ghcr.io/stoatchat/pushd:v0.12.0
+    replicaCount: 1
+    port: 14708
+  voiceIngress:
+    enabled: false
+    image: ghcr.io/stoatchat/voice-ingress:v0.12.0
+    replicaCount: 1
+    port: 8500
+  livekit:
+    enabled: false
+    image: ghcr.io/stoatchat/livekit-server:v1.9.13
+    replicaCount: 1
+    port: 7880
+  web:
+    enabled: true
+    image: ghcr.io/stoatchat/for-web:3a83b8c
+    replicaCount: 1
+    port: 5000

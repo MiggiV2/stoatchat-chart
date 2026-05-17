@@ -1,0 +1,84 @@
+{{- $components := list
+  (dict "id" "api" "name" "api" "port" 14702 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "events" "name" "events" "port" 14703 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "autumn" "name" "autumn" "port" 14704 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "january" "name" "january" "port" 14705 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "gifbox" "name" "gifbox" "port" 14706 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "crond" "name" "crond" "port" 14707 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "pushd" "name" "pushd" "port" 14708 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "voiceIngress" "name" "voice-ingress" "port" 8500 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
+  (dict "id" "livekit" "name" "livekit" "port" 7880 "mountRevolt" false "mountLivekit" true "useWebEnv" false)
+  (dict "id" "web" "name" "web" "port" 5000 "mountRevolt" false "mountLivekit" false "useWebEnv" true)
+}}
+{{- range $component := $components }}
+{{- $cfg := index $.Values.components $component.id }}
+{{- if and $cfg $cfg.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stoatchat.fullname" $ }}-{{ $component.name }}
+  labels:
+    {{- include "stoatchat.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $component.name }}
+spec:
+  replicas: {{ default 1 $cfg.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "stoatchat.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $component.name }}
+  template:
+    metadata:
+      labels:
+        {{- include "stoatchat.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $component.name }}
+    spec:
+      serviceAccountName: {{ include "stoatchat.serviceAccountName" $ }}
+      containers:
+        - name: {{ $component.name }}
+          image: {{ $cfg.image | quote }}
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          {{- if eq $component.id "livekit" }}
+          args: ["--config", "/etc/livekit.yml"]
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ default $component.port $cfg.port }}
+              protocol: TCP
+          {{- if $component.useWebEnv }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "stoatchat.fullname" $ }}-web-env
+          {{- else }}
+          envFrom:
+            - secretRef:
+                name: {{ include "stoatchat.secretName" $ }}
+          {{- end }}
+          {{- if or $component.mountRevolt $component.mountLivekit }}
+          volumeMounts:
+            {{- if $component.mountRevolt }}
+            - name: revolt-config
+              mountPath: /Revolt.toml
+              subPath: Revolt.toml
+            {{- end }}
+            {{- if $component.mountLivekit }}
+            - name: livekit-config
+              mountPath: /etc/livekit.yml
+              subPath: livekit.yml
+            {{- end }}
+          {{- end }}
+      {{- if or $component.mountRevolt $component.mountLivekit }}
+      volumes:
+        {{- if $component.mountRevolt }}
+        - name: revolt-config
+          configMap:
+            name: {{ include "stoatchat.revoltConfigMapName" $ }}
+        {{- end }}
+        {{- if $component.mountLivekit }}
+        - name: livekit-config
+          configMap:
+            name: {{ include "stoatchat.livekitConfigMapName" $ }}
+        {{- end }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}

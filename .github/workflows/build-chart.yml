@@ -1,0 +1,38 @@
+name: Build Helm Chart
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm dependency update
+        run: helm dependency update charts/stoatchat
+
+      - name: Helm lint
+        run: helm lint charts/stoatchat
+
+      - name: Helm template
+        run: helm template stoatchat charts/stoatchat > /tmp/stoatchat-rendered.yaml
+
+      - name: Helm package
+        run: |
+          mkdir -p dist
+          helm package charts/stoatchat --destination dist
+
+      - name: Upload chart artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stoatchat-chart
+          path: dist/*.tgz

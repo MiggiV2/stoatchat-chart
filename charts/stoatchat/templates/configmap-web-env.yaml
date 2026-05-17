@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-web-env
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+data:
+  HOSTNAME: {{ printf "https://%s" (include "stoatchat.ingressHost" .) | quote }}
+  REVOLT_PUBLIC_URL: {{ printf "https://%s/api" (include "stoatchat.ingressHost" .) | quote }}
+  VITE_API_URL: {{ printf "https://%s/api" (include "stoatchat.ingressHost" .) | quote }}
+  VITE_WS_URL: {{ printf "wss://%s/ws" (include "stoatchat.ingressHost" .) | quote }}
+  VITE_MEDIA_URL: {{ printf "https://%s/autumn" (include "stoatchat.ingressHost" .) | quote }}
+  VITE_PROXY_URL: {{ printf "https://%s/january" (include "stoatchat.ingressHost" .) | quote }}
+  {{- with .Values.config.webEnv }}
+  {{- range $k, $v := . }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+  {{- end }}
