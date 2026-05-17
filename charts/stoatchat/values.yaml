@@ -35,6 +35,19 @@ infrastructure:
     accessKey: "minioautumn"
     secretKey: "minioautumn"
 
+# Bitnami moved a number of container images under bitnamilegacy/*.
+# Keep dependency defaults resolvable for fresh installs.
+minio:
+  image:
+    repository: bitnamilegacy/minio
+  console:
+    image:
+      repository: bitnamilegacy/minio-object-browser
+
+rabbitmq:
+  image:
+    repository: bitnamilegacy/rabbitmq
+
 existingSecretsName: ""
 secrets:
   REVOLT__PUSHD__VAPID__PRIVATE_KEY: "replace-me"
