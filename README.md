@@ -69,10 +69,10 @@ The CI workflow publishes chart packages to GHCR as OCI artifacts.
 echo "${GITHUB_TOKEN}" | helm registry login ghcr.io -u <github-user> --password-stdin
 
 # install directly from OCI
-helm install stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.0 -n stoatchat --create-namespace
+helm install stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.2 -n stoatchat --create-namespace
 
 # or upgrade using OCI source
-helm upgrade stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.0 -n stoatchat
+helm upgrade stoatchat oci://ghcr.io/miggiv2/charts/stoatchat --version 0.1.2 -n stoatchat
 ```
 
 ## Using existing secrets/config
@@ -86,6 +86,9 @@ If you already have managed resources:
 
 - `livekit` and `voice-ingress` are disabled by default.
 - If you enable them, ensure your cluster/network setup supports the required voice/RTC networking model.
+- To expose LiveKit media ports externally, enable `components.livekit.mediaService.enabled=true`.
+- For k3s ServiceLB pinning to a specific node pool, set `components.livekit.mediaService.serviceLbPool` (for example `main`).
+- To pin the LiveKit pod to a specific node, use `components.livekit.nodeSelector` and matching `tolerations`.
 
 ## CI workflow
 

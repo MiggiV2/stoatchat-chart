@@ -9,6 +9,9 @@ ingress:
   enabled: true
   className: ""
   annotations: {}
+  stripApiPrefix:
+    enabled: false
+    middlewareName: ""
   tls:
     enabled: false
     secretName: ""
@@ -96,7 +99,7 @@ config:
     webhook:
       api_key: {{ .Values.secrets.REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY }}
       urls:
-      - "http://{{ include \"stoatchat.fullname\" . }}-voice-ingress:8500/worldwide"
+      - 'http://{{ include "stoatchat.fullname" . }}-voice-ingress:8500/worldwide'
 
 components:
   api:
@@ -144,6 +147,22 @@ components:
     image: ghcr.io/stoatchat/livekit-server:v1.9.13
     replicaCount: 1
     port: 7880
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    mediaService:
+      enabled: false
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      annotations: {}
+      labels: {}
+      serviceLbPool: ""
+      rtcTcpPort: 7881
+      rtcUdpPortRangeStart: 50000
+      rtcUdpPortRangeEnd: 50100
+      includeTurnPorts: false
+      turnUdpPort: 3478
+      turnTlsPort: 5349
   web:
     enabled: true
     image: ghcr.io/stoatchat/for-web:3a83b8c

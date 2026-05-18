@@ -33,3 +33,59 @@ spec:
 ---
 {{- end }}
 {{- end }}
+
+{{- $livekit := .Values.components.livekit }}
+{{- if and $livekit $livekit.enabled $livekit.mediaService.enabled }}
+{{- $media := $livekit.mediaService }}
+{{- $rangeStart := int $media.rtcUdpPortRangeStart }}
+{{- $rangeEnd := int $media.rtcUdpPortRangeEnd }}
+{{- if lt $rangeEnd $rangeStart }}
+{{- fail "components.livekit.mediaService.rtcUdpPortRangeEnd must be >= rtcUdpPortRangeStart" }}
+{{- end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-livekit-media
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+    app.kubernetes.io/component: livekit
+    {{- with $media.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if $media.serviceLbPool }}
+    svccontroller.k3s.cattle.io/lbpool: {{ $media.serviceLbPool | quote }}
+    {{- end }}
+  {{- with $media.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ default "LoadBalancer" $media.type }}
+  {{- if and (ne (default "LoadBalancer" $media.type) "ClusterIP") $media.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ $media.externalTrafficPolicy }}
+  {{- end }}
+  selector:
+    {{- include "stoatchat.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: livekit
+  ports:
+    - name: rtc-tcp
+      port: {{ int $media.rtcTcpPort }}
+      targetPort: {{ int $media.rtcTcpPort }}
+      protocol: TCP
+    {{- range $port := untilStep (int $rangeStart) (int (add1 $rangeEnd)) 1 }}
+    - name: udp-{{ $port }}
+      port: {{ $port }}
+      targetPort: {{ $port }}
+      protocol: UDP
+    {{- end }}
+    {{- if $media.includeTurnPorts }}
+    - name: turn-udp
+      port: {{ int $media.turnUdpPort }}
+      targetPort: {{ int $media.turnUdpPort }}
+      protocol: UDP
+    - name: turn-tls
+      port: {{ int $media.turnTlsPort }}
+      targetPort: {{ int $media.turnTlsPort }}
+      protocol: TCP
+    {{- end }}
+{{- end }}
