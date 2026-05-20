@@ -16,6 +16,11 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/stoatchat/**"],
       "groupName": "stoatchat downstream images"
+    },
+    {
+      "matchManagers": ["helmv3"],
+      "matchFileNames": ["charts/stoatchat/Chart.yaml"],
+      "groupName": "stoatchat chart dependencies"
     }
   ]
 }
