@@ -19,20 +19,19 @@ This repository provides a custom Helm chart for deploying Stoatchat based on th
   - app secrets via Secret env vars (same key names used by `secrets.env`)
   - web public URL environment values via ConfigMap
 - Optional infrastructure dependencies via Helm dependencies:
-  - MongoDB, Redis, RabbitMQ, MinIO, RustFS
+  - MongoDB, Redis, RabbitMQ, RustFS
 
 ## Design defaults
 
-Following `GUIDE.md` recommendations, the chart defaults to **external infrastructure endpoints**.  
+Following `GUIDE.md` recommendations, the chart defaults to **external infrastructure endpoints**, except for object storage which defaults to the bundled RustFS subchart.
 You can enable bundled dependencies by toggling:
 
 - `infrastructure.mongodb.enabled=true`
 - `infrastructure.redis.enabled=true`
 - `infrastructure.rabbitmq.enabled=true`
-- `infrastructure.minio.enabled=true`
-- `infrastructure.rustfs.enabled=true`
+- `infrastructure.rustfs.enabled=true` (default)
 
-MinIO and RustFS can be enabled simultaneously to ease migration between them. Wire the desired backend into `files.s3` in `Revolt.toml` (see `values.yaml`).
+Wire the S3 backend into `files.s3` in `Revolt.toml` (see `values.yaml`).
 
 ## Quick start
 

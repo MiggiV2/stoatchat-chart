@@ -6,13 +6,10 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   version: 25.5.3
 - name: rabbitmq
-  repository: https://charts.bitnami.com/bitnami
-  version: 16.0.14
-- name: minio
-  repository: https://charts.bitnami.com/bitnami
-  version: 17.0.21
+  repository: https://groundhog2k.github.io/helm-charts
+  version: 2.3.0
 - name: rustfs
   repository: https://rustfs.github.io/helm
   version: 0.3.0
-digest: sha256:87ef9fb55b9160ff4ae655fafb2d4f758b37cbcc121678e770a157b5c5490571
-generated: "2026-05-20T18:28:10.903639717+02:00"
+digest: sha256:6ed2ee1b1d6f9b0bac4cf5e9381bd5c56b1ab7096052be1b0477c61a9165dad4
+generated: "2026-05-20T19:26:01.769701059+02:00"
