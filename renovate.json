@@ -9,9 +9,24 @@
         "image:\\s*(?<depName>ghcr\\.io/stoatchat/[a-z0-9-]+):(?<currentValue>[^\\s]+)"
       ],
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^charts/stoatchat/values\\.ya?ml$"],
+      "matchStrings": [
+        "image:\\s*ghcr\\.io/stoatchat/for-web:[a-f0-9]+\\s*#\\s*v(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "stoatchat/for-web",
+      "extractVersionTemplate": "^stoat-for-web-v(?<version>.+)$"
     }
   ],
   "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/stoatchat/for-web"],
+      "enabled": false
+    },
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/stoatchat/**"],
@@ -21,6 +36,11 @@
       "matchManagers": ["helmv3"],
       "matchFileNames": ["charts/stoatchat/Chart.yaml"],
       "groupName": "stoatchat chart dependencies"
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["stoatchat/for-web"],
+      "groupName": "stoatchat for-web releases"
     }
   ]
 }
