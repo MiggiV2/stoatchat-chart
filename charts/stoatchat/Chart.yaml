@@ -2,7 +2,7 @@ apiVersion: v2
 name: stoatchat
 description: Custom Helm chart for deploying Stoatchat self-hosted services
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "0.12.0"
 
 dependencies:
@@ -22,3 +22,7 @@ dependencies:
     version: "17.0.21"
     repository: "https://charts.bitnami.com/bitnami"
     condition: infrastructure.minio.enabled
+  - name: rustfs
+    version: "0.3.0"
+    repository: "https://rustfs.github.io/helm"
+    condition: infrastructure.rustfs.enabled

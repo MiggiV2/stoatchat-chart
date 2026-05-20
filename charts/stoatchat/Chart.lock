@@ -11,5 +11,8 @@ dependencies:
 - name: minio
   repository: https://charts.bitnami.com/bitnami
   version: 17.0.21
-digest: sha256:6cecab45cbae20e322ab62b9a6566ab16f638faff43acfa094500a0a0ddca70e
-generated: "2026-05-17T12:56:02.747891705+02:00"
+- name: rustfs
+  repository: https://rustfs.github.io/helm
+  version: 0.3.0
+digest: sha256:87ef9fb55b9160ff4ae655fafb2d4f758b37cbcc121678e770a157b5c5490571
+generated: "2026-05-20T18:28:10.903639717+02:00"

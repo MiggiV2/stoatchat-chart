@@ -37,6 +37,12 @@ infrastructure:
     bucket: "revolt-uploads"
     accessKey: "minioautumn"
     secretKey: "minioautumn"
+  rustfs:
+    enabled: false
+    endpoint: "http://rustfs:9000"
+    bucket: "revolt-uploads"
+    accessKey: "rustfsautumn"
+    secretKey: "rustfsautumn"
 
 # Bitnami moved a number of container images under bitnamilegacy/*.
 # Keep dependency defaults resolvable for fresh installs.
@@ -50,6 +56,29 @@ minio:
 rabbitmq:
   image:
     repository: bitnamilegacy/rabbitmq
+
+# RustFS subchart defaults: single-pod standalone with one PVC.
+# Override `secret.rustfs.*` (or set `secret.existingSecret`) when enabling.
+rustfs:
+  mode:
+    standalone:
+      enabled: true
+    distributed:
+      enabled: false
+  replicaCount: 1
+  secret:
+    rustfs:
+      access_key: "rustfsautumn"
+      secret_key: "rustfsautumn"
+  ingress:
+    enabled: false
+  storageclass:
+    name: local-path
+    dataStorageSize: 8Gi
+    logStorageSize: 256Mi
+  affinity:
+    podAntiAffinity:
+      enabled: false
 
 existingSecretsName: ""
 secrets:
