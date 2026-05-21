@@ -1,15 +1,4 @@
-{{- $components := list
-  (dict "id" "api" "name" "api" "port" 14702 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "events" "name" "events" "port" 14703 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "autumn" "name" "autumn" "port" 14704 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "january" "name" "january" "port" 14705 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "gifbox" "name" "gifbox" "port" 14706 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "crond" "name" "crond" "port" 14707 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "pushd" "name" "pushd" "port" 14708 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "voiceIngress" "name" "voice-ingress" "port" 8500 "mountRevolt" true "mountLivekit" false "useWebEnv" false)
-  (dict "id" "livekit" "name" "livekit" "port" 7880 "mountRevolt" false "mountLivekit" true "useWebEnv" false)
-  (dict "id" "web" "name" "web" "port" 5000 "mountRevolt" false "mountLivekit" false "useWebEnv" true)
-}}
+{{- $components := (include "stoatchat.components" .) | fromYamlArray }}
 {{- range $component := $components }}
 {{- $cfg := index $.Values.components $component.id }}
 {{- if and $cfg $cfg.enabled }}

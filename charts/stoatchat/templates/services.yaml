@@ -1,15 +1,4 @@
-{{- $components := list
-  (dict "id" "api" "name" "api" "port" 14702)
-  (dict "id" "events" "name" "events" "port" 14703)
-  (dict "id" "autumn" "name" "autumn" "port" 14704)
-  (dict "id" "january" "name" "january" "port" 14705)
-  (dict "id" "gifbox" "name" "gifbox" "port" 14706)
-  (dict "id" "crond" "name" "crond" "port" 14707)
-  (dict "id" "pushd" "name" "pushd" "port" 14708)
-  (dict "id" "voiceIngress" "name" "voice-ingress" "port" 8500)
-  (dict "id" "livekit" "name" "livekit" "port" 7880)
-  (dict "id" "web" "name" "web" "port" 5000)
-}}
+{{- $components := (include "stoatchat.components" .) | fromYamlArray }}
 {{- range $component := $components }}
 {{- $cfg := index $.Values.components $component.id }}
 {{- if and $cfg $cfg.enabled }}
