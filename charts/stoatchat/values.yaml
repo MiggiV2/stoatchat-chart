@@ -9,6 +9,10 @@ ingress:
   enabled: true
   className: ""
   annotations: {}
+  # Emit a Traefik middleware reference annotation on the Ingress when enabled.
+  # `middlewareName` must be the fully qualified middleware ref Traefik expects,
+  # e.g. "stoatchat-strip-api@kubernetescrd". The middleware itself must be
+  # created out of band (e.g. a Traefik Middleware CR).
   stripApiPrefix:
     enabled: false
     middlewareName: ""
