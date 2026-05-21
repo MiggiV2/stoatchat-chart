@@ -124,6 +124,16 @@ config:
       urls:
       - 'http://{{ include "stoatchat.fullname" . }}-voice-ingress:8500/worldwide'
 
+# Every entry under `components:` accepts the following optional fields
+# in addition to the ones shown explicitly below. Defaults are empty/unset
+# so omitting them keeps existing behaviour:
+#   resources: {}           # pod resource requests/limits
+#   livenessProbe: {}       # full probe spec, passed through verbatim
+#   readinessProbe: {}      # full probe spec, passed through verbatim
+#   startupProbe: {}        # full probe spec, passed through verbatim
+#   nodeSelector: {}
+#   tolerations: []
+#   affinity: {}
 components:
   api:
     enabled: true

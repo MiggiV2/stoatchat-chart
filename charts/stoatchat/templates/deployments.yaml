@@ -54,6 +54,22 @@ spec:
             - secretRef:
                 name: {{ include "stoatchat.secretName" $ }}
           {{- end }}
+          {{- with $cfg.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $cfg.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $cfg.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $cfg.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- if or $component.mountRevolt $component.mountLivekit }}
           volumeMounts:
             {{- if $component.mountRevolt }}
