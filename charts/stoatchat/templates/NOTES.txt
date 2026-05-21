@@ -1,0 +1,59 @@
+Stoatchat has been installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+{{- if .Values.ingress.enabled }}
+
+Web UI:
+  {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ include "stoatchat.ingressHost" . }}/
+
+API endpoints:
+  /api       -> api
+  /ws        -> events
+  /autumn    -> autumn (file server)
+  /january   -> january (proxy)
+  /gifbox    -> gifbox
+  {{- if .Values.components.livekit.enabled }}
+  /livekit   -> livekit
+  {{- end }}
+  {{- if .Values.components.voiceIngress.enabled }}
+  /ingress   -> voice-ingress
+  {{- end }}
+{{- else }}
+
+Ingress is disabled. Expose the services yourself, e.g.:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "stoatchat.fullname" . }}-web 5000:5000
+{{- end }}
+
+{{- $placeholders := list }}
+{{- if not .Values.existingSecretsName }}
+  {{- range $key, $value := .Values.secrets }}
+    {{- if eq $value "replace-me" }}
+      {{- $placeholders = append $placeholders $key }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- if $placeholders }}
+
+WARNING: the following secret values are still set to "replace-me". Generate real
+values and reinstall with `--set secrets.<KEY>=...` or supply an existing Secret
+via `existingSecretsName`:
+{{- range $placeholders }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+
+{{- if eq .Values.global.domain "chat.example.com" }}
+
+WARNING: global.domain is still the default "chat.example.com". Set it to your
+real hostname before going live or links rendered into Revolt.toml will be wrong.
+{{- end }}
+
+{{- if and .Values.components.livekit.enabled (not .Values.infrastructure.redis.enabled) (eq .Values.infrastructure.redis.address "redis:6379") }}
+
+NOTE: LiveKit is enabled but infrastructure.redis points at the default
+"redis:6379". LiveKit requires a reachable Redis — set infrastructure.redis.address
+or enable the bundled subchart.
+{{- end }}
+
+Useful commands:
+  kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+  helm -n {{ .Release.Namespace }} status {{ .Release.Name }}
