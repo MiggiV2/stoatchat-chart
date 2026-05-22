@@ -41,6 +41,18 @@ infrastructure:
     bucket: "revolt-uploads"
     accessKey: "rustfsautumn"
     secretKey: "rustfsautumn"
+    # Post-install/post-upgrade Helm hook Job that ensures `bucket` exists on
+    # `endpoint`. Idempotent (`mc mb --ignore-existing`). Disable if the
+    # bucket is managed out of band.
+    bucketInit:
+      enabled: true
+      image:
+        repository: minio/mc
+        tag: latest
+        pullPolicy: ""
+      backoffLimit: 6
+      activeDeadlineSeconds: 300
+      resources: {}
 
 # RabbitMQ subchart (groundhog2k/rabbitmq) uses the upstream
 # docker.io/rabbitmq image. erlangCookie is MANDATORY when enabling

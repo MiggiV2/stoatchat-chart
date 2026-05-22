@@ -1,0 +1,52 @@
+{{- if and .Values.infrastructure.rustfs.enabled .Values.infrastructure.rustfs.bucketInit.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-rustfs-bucket-init
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rustfs-bucket-init
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.infrastructure.rustfs.bucketInit.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.infrastructure.rustfs.bucketInit.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "stoatchat.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: rustfs-bucket-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: "{{ .Values.infrastructure.rustfs.bucketInit.image.repository }}:{{ .Values.infrastructure.rustfs.bucketInit.image.tag }}"
+          imagePullPolicy: {{ .Values.infrastructure.rustfs.bucketInit.image.pullPolicy | default .Values.global.imagePullPolicy }}
+          env:
+            - name: RUSTFS_ENDPOINT
+              value: {{ .Values.infrastructure.rustfs.endpoint | quote }}
+            - name: RUSTFS_ACCESS_KEY
+              value: {{ .Values.infrastructure.rustfs.accessKey | quote }}
+            - name: RUSTFS_SECRET_KEY
+              value: {{ .Values.infrastructure.rustfs.secretKey | quote }}
+            - name: RUSTFS_BUCKET
+              value: {{ .Values.infrastructure.rustfs.bucket | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Waiting for rustfs at $RUSTFS_ENDPOINT ..."
+              until mc alias set rfs "$RUSTFS_ENDPOINT" "$RUSTFS_ACCESS_KEY" "$RUSTFS_SECRET_KEY" >/dev/null 2>&1; do
+                echo "rustfs not ready, retry in 3s"
+                sleep 3
+              done
+              echo "Ensuring bucket: $RUSTFS_BUCKET"
+              mc mb --ignore-existing "rfs/$RUSTFS_BUCKET"
+              echo "Done."
+          resources:
+            {{- toYaml .Values.infrastructure.rustfs.bucketInit.resources | nindent 12 }}
+{{- end }}
