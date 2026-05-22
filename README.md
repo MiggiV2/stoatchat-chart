@@ -33,6 +33,15 @@ You can enable bundled dependencies by toggling:
 
 Wire the S3 backend into `files.s3` in `Revolt.toml` (see `values.yaml`).
 
+### MongoDB: prefer the operator
+
+The bundled MongoDB subchart is fine for evaluation but pulls from Bitnami,
+whose free `docker.io/bitnami/*` images are no longer maintained. For
+production, run [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator)
+out of band — it gives you proper replica-set management, TLS, and rolling
+upgrades. Then keep `infrastructure.mongodb.enabled=false` and point
+`infrastructure.mongodb.uri` at the operator-managed connection string.
+
 ## Quick start
 
 1. Install dependencies and render values:
