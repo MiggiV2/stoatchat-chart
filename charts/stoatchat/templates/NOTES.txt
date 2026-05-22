@@ -50,8 +50,8 @@ real hostname before going live or links rendered into Revolt.toml will be wrong
 {{- if and .Values.components.livekit.enabled (not .Values.infrastructure.redis.enabled) (eq .Values.infrastructure.redis.address "redis:6379") }}
 
 NOTE: LiveKit is enabled but infrastructure.redis points at the default
-"redis:6379". LiveKit requires a reachable Redis — set infrastructure.redis.address
-or enable the bundled subchart.
+"redis:6379". LiveKit requires a reachable Redis/Valkey endpoint — set
+infrastructure.redis.address or enable the bundled Valkey subchart.
 {{- end }}
 
 Useful commands:

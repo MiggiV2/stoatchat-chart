@@ -19,7 +19,7 @@ This repository provides a custom Helm chart for deploying Stoatchat based on th
   - app secrets via Secret env vars (same key names used by `secrets.env`)
   - web public URL environment values via ConfigMap
 - Optional infrastructure dependencies via Helm dependencies:
-  - MongoDB, Redis, RabbitMQ, RustFS
+  - MongoDB, Valkey, RabbitMQ, RustFS
 
 ## Design defaults
 

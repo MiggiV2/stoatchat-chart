@@ -2,7 +2,7 @@ apiVersion: v2
 name: stoatchat
 description: Custom Helm chart for deploying Stoatchat self-hosted services
 type: application
-version: 0.3.2
+version: 0.3.3
 appVersion: "0.13.6"
 keywords:
   - stoatchat
@@ -18,9 +18,9 @@ dependencies:
     version: "19.0.3"
     repository: "https://charts.bitnami.com/bitnami"
     condition: infrastructure.mongodb.enabled
-  - name: redis
-    version: "25.5.3"
-    repository: "https://charts.bitnami.com/bitnami"
+  - name: valkey
+    version: "2.2.5"
+    repository: "https://groundhog2k.github.io/helm-charts"
     condition: infrastructure.redis.enabled
   - name: rabbitmq
     version: "2.3.0"

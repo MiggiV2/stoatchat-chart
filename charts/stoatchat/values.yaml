@@ -55,6 +55,13 @@ rabbitmq:
     erlangCookie:
       value: "replace-me"
 
+# Valkey subchart (groundhog2k/valkey) uses the upstream
+# docker.io/valkey/valkey image and runs without auth by default.
+# Set `valkey.fullnameOverride: redis` (or override
+# `infrastructure.redis.address`) so the in-cluster service name matches
+# what the apps and LiveKit connect to.
+valkey: {}
+
 # RustFS subchart defaults: single-pod standalone with one PVC.
 # Override `secret.rustfs.*` (or set `secret.existingSecret`) when enabling.
 rustfs:
