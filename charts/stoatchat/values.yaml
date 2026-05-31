@@ -109,6 +109,15 @@ smtp:
   usernameKey: username
   passwordKey: password
 
+# hCaptcha anti-bot for signup/login. The public sitekey lives in Revolt.toml
+# under [api.security.captcha].hcaptcha_sitekey; only the secret verification
+# key is pulled from an out-of-band Secret and injected into the api pod as
+# REVOLT__API__SECURITY__CAPTCHA__HCAPTCHA_KEY.
+captcha:
+  enabled: false
+  existingSecret: ""       # Secret holding the hCaptcha secret key
+  secretKey: hcaptcha_key  # key within that Secret
+
 secrets:
   REVOLT__PUSHD__VAPID__PRIVATE_KEY: "replace-me"
   REVOLT__PUSHD__VAPID__PUBLIC_KEY: "replace-me"
