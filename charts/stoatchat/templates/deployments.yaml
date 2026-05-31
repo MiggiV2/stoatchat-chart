@@ -74,6 +74,13 @@ spec:
                 secretKeyRef:
                   name: {{ $.Values.captcha.existingSecret }}
                   key: {{ $.Values.captcha.secretKey }}
+            {{- if $.Values.captcha.sitekeyKey }}
+            - name: REVOLT__API__SECURITY__CAPTCHA__HCAPTCHA_SITEKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.captcha.existingSecret }}
+                  key: {{ $.Values.captcha.sitekeyKey }}
+            {{- end }}
             {{- end }}
           {{- end }}
           {{- with $cfg.resources }}
