@@ -98,6 +98,17 @@ rustfs:
       enabled: false
 
 existingSecretsName: ""
+
+# SMTP credentials for email verification. The non-sensitive settings
+# (host/port/from_address/use_tls) live in Revolt.toml under [api.smtp];
+# only the username/password are pulled from an out-of-band Secret and
+# injected into the api pod as REVOLT__API__SMTP__{USERNAME,PASSWORD}.
+smtp:
+  enabled: false
+  existingSecret: ""      # Secret holding SMTP creds (e.g. stoatchat-smtp)
+  usernameKey: username
+  passwordKey: password
+
 secrets:
   REVOLT__PUSHD__VAPID__PRIVATE_KEY: "replace-me"
   REVOLT__PUSHD__VAPID__PUBLIC_KEY: "replace-me"

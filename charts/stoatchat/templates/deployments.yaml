@@ -54,6 +54,19 @@ spec:
             - secretRef:
                 name: {{ include "stoatchat.secretName" $ }}
           {{- end }}
+          {{- if and $.Values.smtp.enabled (eq $component.id "api") }}
+          env:
+            - name: REVOLT__API__SMTP__USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.smtp.existingSecret }}
+                  key: {{ $.Values.smtp.usernameKey }}
+            - name: REVOLT__API__SMTP__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.smtp.existingSecret }}
+                  key: {{ $.Values.smtp.passwordKey }}
+          {{- end }}
           {{- with $cfg.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
