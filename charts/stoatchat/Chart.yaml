@@ -15,18 +15,18 @@ maintainers:
 
 dependencies:
   - name: mongodb
-    version: "19.0.3"
+    version: "19.1.16"
     repository: "https://charts.bitnami.com/bitnami"
     condition: infrastructure.mongodb.enabled
   - name: valkey
-    version: "2.2.5"
+    version: "2.3.0"
     repository: "https://groundhog2k.github.io/helm-charts"
     condition: infrastructure.redis.enabled
   - name: rabbitmq
-    version: "2.3.0"
+    version: "2.3.4"
     repository: "https://groundhog2k.github.io/helm-charts"
     condition: infrastructure.rabbitmq.enabled
   - name: rustfs
-    version: "0.3.0"
+    version: "0.8.0"
     repository: "https://rustfs.github.io/helm"
     condition: infrastructure.rustfs.enabled
