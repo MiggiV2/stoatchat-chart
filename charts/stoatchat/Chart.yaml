@@ -2,8 +2,8 @@ apiVersion: v2
 name: stoatchat
 description: Custom Helm chart for deploying Stoatchat self-hosted services
 type: application
-version: 0.3.8
-appVersion: "0.13.6"
+version: 0.3.9
+appVersion: "0.13.10"
 keywords:
   - stoatchat
   - revolt
