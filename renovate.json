@@ -1,6 +1,15 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "customDatasources": {
+    "stoat-for-web": {
+      "defaultRegistryUrlTemplate": "https://api.github.com/repos/stoatchat/for-web/tags?per_page=100",
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\": $map($filter($, function($v){$contains($v.name, \"stoat-for-web-v\")}), function($v){{\"version\": $substringAfter($v.name, \"stoat-for-web-v\"), \"digest\": $substring($v.commit.sha, 0, 7)}}), \"sourceUrl\": \"https://github.com/stoatchat/for-web\"}"
+      ]
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -14,11 +23,11 @@
       "customType": "regex",
       "fileMatch": ["^charts/stoatchat/values\\.ya?ml$"],
       "matchStrings": [
-        "image:\\s*ghcr\\.io/stoatchat/for-web:[a-f0-9]+\\s*#\\s*v(?<currentValue>\\S+)"
+        "image:\\s*ghcr\\.io/stoatchat/for-web:(?<currentDigest>[a-f0-9]+)\\s*#\\s*v(?<currentValue>\\S+)"
       ],
-      "datasourceTemplate": "github-releases",
+      "datasourceTemplate": "custom.stoat-for-web",
       "depNameTemplate": "stoatchat/for-web",
-      "extractVersionTemplate": "^stoat-for-web-v(?<version>.+)$"
+      "versioningTemplate": "semver-coerced"
     }
   ],
   "packageRules": [
@@ -38,7 +47,7 @@
       "groupName": "stoatchat chart dependencies"
     },
     {
-      "matchDatasources": ["github-releases"],
+      "matchDatasources": ["custom.stoat-for-web"],
       "matchDepNames": ["stoatchat/for-web"],
       "groupName": "stoatchat for-web releases"
     }
