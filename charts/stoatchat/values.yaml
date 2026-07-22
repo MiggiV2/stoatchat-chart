@@ -182,42 +182,42 @@ config:
 components:
   api:
     enabled: true
-    image: ghcr.io/stoatchat/api:v0.14.2
+    image: ghcr.io/stoatchat/api:v0.14.3
     replicaCount: 1
     port: 14702
   events:
     enabled: true
-    image: ghcr.io/stoatchat/events:v0.14.2
+    image: ghcr.io/stoatchat/events:v0.14.3
     replicaCount: 1
     port: 14703
   autumn:
     enabled: true
-    image: ghcr.io/stoatchat/file-server:v0.14.2
+    image: ghcr.io/stoatchat/file-server:v0.14.3
     replicaCount: 1
     port: 14704
   january:
     enabled: true
-    image: ghcr.io/stoatchat/proxy:v0.14.2
+    image: ghcr.io/stoatchat/proxy:v0.14.3
     replicaCount: 1
     port: 14705
   gifbox:
     enabled: true
-    image: ghcr.io/stoatchat/gifbox:v0.14.2
+    image: ghcr.io/stoatchat/gifbox:v0.14.3
     replicaCount: 1
     port: 14706
   crond:
     enabled: true
-    image: ghcr.io/stoatchat/crond:v0.14.2
+    image: ghcr.io/stoatchat/crond:v0.14.3
     replicaCount: 1
     port: 14707
   pushd:
     enabled: true
-    image: ghcr.io/stoatchat/pushd:v0.14.2
+    image: ghcr.io/stoatchat/pushd:v0.14.3
     replicaCount: 1
     port: 14708
   voiceIngress:
     enabled: false
-    image: ghcr.io/stoatchat/voice-ingress:v0.14.2
+    image: ghcr.io/stoatchat/voice-ingress:v0.14.3
     replicaCount: 1
     port: 8500
   livekit:
