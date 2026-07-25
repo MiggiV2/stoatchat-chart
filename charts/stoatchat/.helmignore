@@ -1,0 +1,10 @@
+.DS_Store
+.git/
+.gitignore
+.idea/
+*.tmproj
+*.swp
+*.bak
+*.orig
+# helm-unittest suites are development-only; they must not ship in the package.
+tests/

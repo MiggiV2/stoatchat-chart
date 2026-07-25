@@ -1,0 +1,91 @@
+suite: component deployment resources
+templates:
+  - deployments.yaml
+tests:
+  - it: sets memory/cpu requests and a memory limit on every default-enabled component
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-api
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-api
+      - exists:
+          path: spec.template.spec.containers[0].resources.limits.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-api
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-events
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-autumn
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-january
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-gifbox
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-crond
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-pushd
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-web
+
+  - it: sets requests on the optional voice components when they are enabled
+    set:
+      components.voiceIngress.enabled: true
+      components.livekit.enabled: true
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-voice-ingress
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-livekit
+
+  - it: leaves no cpu limit set, so no component gets CFS-throttled
+    set:
+      components.voiceIngress.enabled: true
+      components.livekit.enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+
+  - it: still honours a resources override from values
+    set:
+      components.api.resources.requests.memory: 1Gi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 1Gi
+        documentSelector:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-api

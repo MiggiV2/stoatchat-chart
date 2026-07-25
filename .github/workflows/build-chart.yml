@@ -27,6 +27,11 @@ jobs:
       - name: Helm lint
         run: helm lint charts/stoatchat
 
+      - name: Helm unittest
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest --verify=false
+          helm unittest charts/stoatchat
+
       - name: Helm template
         run: helm template stoatchat charts/stoatchat > /tmp/stoatchat-rendered.yaml
 

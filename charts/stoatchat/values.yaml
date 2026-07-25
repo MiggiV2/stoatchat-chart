@@ -172,54 +172,111 @@ config:
 # Every entry under `components:` accepts the following optional fields
 # in addition to the ones shown explicitly below. Defaults are empty/unset
 # so omitting them keeps existing behaviour:
-#   resources: {}           # pod resource requests/limits
 #   livenessProbe: {}       # full probe spec, passed through verbatim
 #   readinessProbe: {}      # full probe spec, passed through verbatim
 #   startupProbe: {}        # full probe spec, passed through verbatim
 #   nodeSelector: {}
 #   tolerations: []
 #   affinity: {}
+#
+# `resources` is the exception: every component ships a default below.
+# Without requests the kube-scheduler treats these pods as weightless, so
+# nothing stops the whole stack from piling onto whichever node happens to be
+# up — which is exactly what happens after a node outage. The numbers are
+# sized off measured idle usage of the Rust services (2-50Mi each) plus
+# headroom for spikes. Memory carries a limit because a runaway process would
+# otherwise take the node with it; CPU deliberately has none, so no component
+# gets CFS-throttled.
 components:
   api:
     enabled: true
     image: ghcr.io/stoatchat/api:v0.14.3
     replicaCount: 1
     port: 14702
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
   events:
     enabled: true
     image: ghcr.io/stoatchat/events:v0.14.3
     replicaCount: 1
     port: 14703
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   autumn:
     enabled: true
     image: ghcr.io/stoatchat/file-server:v0.14.3
     replicaCount: 1
     port: 14704
+    # Buffers uploads, so the limit is looser than the rest of the stack.
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 512Mi
   january:
     enabled: true
     image: ghcr.io/stoatchat/proxy:v0.14.3
     replicaCount: 1
     port: 14705
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   gifbox:
     enabled: true
     image: ghcr.io/stoatchat/gifbox:v0.14.3
     replicaCount: 1
     port: 14706
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   crond:
     enabled: true
     image: ghcr.io/stoatchat/crond:v0.14.3
     replicaCount: 1
     port: 14707
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   pushd:
     enabled: true
     image: ghcr.io/stoatchat/pushd:v0.14.3
     replicaCount: 1
     port: 14708
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   voiceIngress:
     enabled: false
     image: ghcr.io/stoatchat/voice-ingress:v0.14.3
     replicaCount: 1
     port: 8500
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
   livekit:
     enabled: false
     image: ghcr.io/stoatchat/livekit-server:v1.9.13
@@ -228,6 +285,15 @@ components:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+    # SFU: forwards media for every participant in a call, so it needs the
+    # most CPU of the stack. A CPU limit here would surface as audio glitches
+    # for everyone on the call.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
     mediaService:
       enabled: false
       type: LoadBalancer
@@ -246,3 +312,9 @@ components:
     image: ghcr.io/stoatchat/for-web:3f496c5 # v0.12.1
     replicaCount: 1
     port: 5000
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
