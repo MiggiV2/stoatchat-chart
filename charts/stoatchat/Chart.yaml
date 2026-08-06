@@ -15,7 +15,7 @@ maintainers:
 
 dependencies:
   - name: mongodb
-    version: "19.1.21"
+    version: "19.1.24"
     repository: "https://charts.bitnami.com/bitnami"
     condition: infrastructure.mongodb.enabled
   - name: valkey
