@@ -151,3 +151,8 @@ The suites are excluded from the packaged chart via `.helmignore`.
 ## CI workflow
 
 This repo includes `.github/workflows/build-chart.yml` to lint/unittest/template/package the chart and push it to GHCR on push events.
+
+Published chart versions are immutable: on `main`, the workflow first checks whether the version in
+`charts/stoatchat/Chart.yaml` already exists in the registry. If it does, lint/unittest/template/package still
+run and the packaged chart is uploaded as a build artifact, but the `helm push` is skipped and the job logs a
+notice. Bump `version` in `charts/stoatchat/Chart.yaml` to publish a release.
