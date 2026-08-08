@@ -190,7 +190,7 @@ config:
 components:
   api:
     enabled: true
-    image: ghcr.io/stoatchat/api:v0.15.0
+    image: ghcr.io/stoatchat/api:v0.15.1
     replicaCount: 1
     port: 14702
     resources:
@@ -201,7 +201,7 @@ components:
         memory: 512Mi
   events:
     enabled: true
-    image: ghcr.io/stoatchat/events:v0.15.0
+    image: ghcr.io/stoatchat/events:v0.15.1
     replicaCount: 1
     port: 14703
     resources:
@@ -212,7 +212,7 @@ components:
         memory: 256Mi
   autumn:
     enabled: true
-    image: ghcr.io/stoatchat/file-server:v0.15.0
+    image: ghcr.io/stoatchat/file-server:v0.15.1
     replicaCount: 1
     port: 14704
     # Buffers uploads, so the limit is looser than the rest of the stack.
@@ -224,7 +224,7 @@ components:
         memory: 512Mi
   january:
     enabled: true
-    image: ghcr.io/stoatchat/proxy:v0.15.0
+    image: ghcr.io/stoatchat/proxy:v0.15.1
     replicaCount: 1
     port: 14705
     resources:
@@ -235,7 +235,7 @@ components:
         memory: 256Mi
   gifbox:
     enabled: true
-    image: ghcr.io/stoatchat/gifbox:v0.15.0
+    image: ghcr.io/stoatchat/gifbox:v0.15.1
     replicaCount: 1
     port: 14706
     resources:
@@ -246,7 +246,7 @@ components:
         memory: 256Mi
   crond:
     enabled: true
-    image: ghcr.io/stoatchat/crond:v0.15.0
+    image: ghcr.io/stoatchat/crond:v0.15.1
     replicaCount: 1
     port: 14707
     resources:
@@ -257,7 +257,7 @@ components:
         memory: 256Mi
   pushd:
     enabled: true
-    image: ghcr.io/stoatchat/pushd:v0.15.0
+    image: ghcr.io/stoatchat/pushd:v0.15.1
     replicaCount: 1
     port: 14708
     resources:
@@ -268,7 +268,7 @@ components:
         memory: 256Mi
   voiceIngress:
     enabled: false
-    image: ghcr.io/stoatchat/voice-ingress:v0.15.0
+    image: ghcr.io/stoatchat/voice-ingress:v0.15.1
     replicaCount: 1
     port: 8500
     resources:
