@@ -10,6 +10,6 @@ dependencies:
   version: 2.3.7
 - name: rustfs
   repository: https://rustfs.github.io/helm
-  version: 0.12.0
-digest: sha256:9bf7496c376647411043674ff5963e74e1a7b232a8b4ab010241428964041a0e
-generated: "2026-07-30T15:33:07.360726008Z"
+  version: 1.0.0
+digest: sha256:ba02ac6c3a8854a87a99774ef21c2bd41dc509196fdda310badda2aa1ffa0594
+generated: "2026-09-18T23:44:56.520491698Z"
