@@ -349,7 +349,7 @@ assets:
   enabled: true
   repository: https://github.com/stoatchat/whitelabel-assets.git
   ref: e091f5a5a9e226706229d2213f65d81ac93306e1
-  image: alpine/git:v2.52.0
+  image: alpine/git:v2.54.0
   resources:
     requests:
       cpu: 10m
