@@ -1,0 +1,91 @@
+{{- if .Values.wellKnown.enabled }}
+{{- $cfg := .Values.wellKnown }}
+{{- $nginxConf := include "stoatchat.wellKnownNginxConf" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-well-known
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+    app.kubernetes.io/component: well-known
+data:
+  default.conf: |
+    {{- $nginxConf | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-well-known
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+    app.kubernetes.io/component: well-known
+spec:
+  replicas: {{ default 1 $cfg.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "stoatchat.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: well-known
+  template:
+    metadata:
+      labels:
+        {{- include "stoatchat.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: well-known
+      annotations:
+        checksum/config: {{ $nginxConf | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "stoatchat.serviceAccountName" . }}
+      {{- with $cfg.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $cfg.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $cfg.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: well-known
+          image: {{ $cfg.image | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $cfg.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /.well-known/stoat
+              port: http
+          {{- with $cfg.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ include "stoatchat.fullname" . }}-well-known
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stoatchat.fullname" . }}-well-known
+  labels:
+    {{- include "stoatchat.labels" . | nindent 4 }}
+    app.kubernetes.io/component: well-known
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "stoatchat.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: well-known
+  ports:
+    - name: http
+      port: {{ $cfg.port }}
+      targetPort: {{ $cfg.port }}
+      protocol: TCP
+{{- end }}

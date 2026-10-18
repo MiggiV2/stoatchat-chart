@@ -14,6 +14,10 @@ This repository provides a custom Helm chart for deploying Stoatchat based on th
 - Kubernetes Ingress routes equivalent to upstream Caddy paths:
   - `/`, `/api`, `/ws`, `/autumn`, `/january`, `/gifbox`
   - optional: `/livekit`, `/ingress`
+- Instance discovery at `/.well-known/stoat` (`wellKnown.enabled`, default on): a
+  small nginx answers `{"api":"https://<host>/api"}` with
+  `Access-Control-Allow-Origin: *`, like the upstream Caddyfile, so multi-instance
+  web clients hosted elsewhere can resolve this instance
 - Config and secret wiring:
   - `Revolt.toml` via ConfigMap
   - app secrets via Secret env vars (same key names used by `secrets.env`)
@@ -50,11 +54,12 @@ outage, and it does not unwind by itself once the node returns.
 | `crond` | 10m | 64Mi | 256Mi |
 | `pushd` | 10m | 64Mi | 256Mi |
 | `web` | 10m | 64Mi | 256Mi |
+| `well-known` (`wellKnown.*`) | 5m | 16Mi | 64Mi |
 | `voice-ingress` (opt-in) | 25m | 64Mi | 256Mi |
 | `livekit` (opt-in) | 100m | 128Mi | 512Mi |
 
-Defaults enabled: **180m CPU / 576Mi memory** requested. With voice enabled:
-**305m CPU / 768Mi memory**.
+Defaults enabled: **185m CPU / 592Mi memory** requested. With voice enabled:
+**310m CPU / 784Mi memory**.
 
 Memory carries a limit so a runaway process cannot take the node with it. CPU
 deliberately has no limit — CFS throttling on `livekit` surfaces as audio

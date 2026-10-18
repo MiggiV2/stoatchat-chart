@@ -146,3 +146,19 @@ Fields:
   mountLivekit: false
   useWebEnv: true
 {{- end -}}
+
+{{/*
+nginx server block answering the client instance-discovery request
+(GET /.well-known/stoat) that for-web uses to resolve a host to its API URL.
+*/}}
+{{- define "stoatchat.wellKnownNginxConf" -}}
+server {
+    listen {{ .Values.wellKnown.port }};
+
+    location = /.well-known/stoat {
+        default_type application/json;
+        add_header Access-Control-Allow-Origin * always;
+        return 200 '{{ dict "api" (printf "https://%s/api" (include "stoatchat.ingressHost" .)) | toJson }}';
+    }
+}
+{{- end -}}

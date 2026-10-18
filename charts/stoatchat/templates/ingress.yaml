@@ -95,6 +95,15 @@ spec:
                 port:
                   number: {{ .Values.components.voiceIngress.port }}
           {{- end }}
+          {{- if .Values.wellKnown.enabled }}
+          - path: /.well-known/stoat
+            pathType: Exact
+            backend:
+              service:
+                name: {{ include "stoatchat.fullname" . }}-well-known
+                port:
+                  number: {{ .Values.wellKnown.port }}
+          {{- end }}
           {{- if .Values.components.web.enabled }}
           - path: /
             pathType: Prefix

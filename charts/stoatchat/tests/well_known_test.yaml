@@ -1,0 +1,102 @@
+suite: well-known client config route
+templates:
+  - well-known.yaml
+  - ingress.yaml
+set:
+  global.domain: chat.example.org
+tests:
+  - it: serves the instance API URL as JSON with an open CORS header
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: ConfigMap
+    asserts:
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "location = /\\.well-known/stoat"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "return 200 '\\{\"api\":\"https://chat\\.example\\.org/api\"\\}'"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "add_header Access-Control-Allow-Origin \\* always"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "default_type application/json"
+
+  - it: prefers ingress.host over global.domain for the API URL
+    template: well-known.yaml
+    set:
+      ingress.host: stoat.example.net
+    documentSelector:
+      path: kind
+      value: ConfigMap
+    asserts:
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "https://stoat\\.example\\.net/api"
+
+  - it: deploys an unprivileged nginx with the config mounted and requests set
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "^nginxinc/nginx-unprivileged:"
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /etc/nginx/conf.d/default.conf
+      - exists:
+          path: spec.template.spec.containers[0].resources.requests.memory
+      - exists:
+          path: spec.template.metadata.annotations["checksum/config"]
+      - notExists:
+          path: spec.template.spec.containers[0].envFrom
+
+  - it: exposes the nginx pod through a ClusterIP service
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-stoatchat-well-known
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+
+  - it: routes exactly /.well-known/stoat to the well-known service
+    template: ingress.yaml
+    asserts:
+      - contains:
+          path: spec.rules[0].http.paths
+          content:
+            path: /.well-known/stoat
+            pathType: Exact
+            backend:
+              service:
+                name: RELEASE-NAME-stoatchat-well-known
+                port:
+                  number: 8080
+
+  - it: renders nothing and adds no route when disabled
+    set:
+      wellKnown.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: well-known.yaml
+      - notContains:
+          path: spec.rules[0].http.paths
+          content:
+            path: /.well-known/stoat
+            pathType: Exact
+            backend:
+              service:
+                name: RELEASE-NAME-stoatchat-well-known
+                port:
+                  number: 8080
+        template: ingress.yaml
