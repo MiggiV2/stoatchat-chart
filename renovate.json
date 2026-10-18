@@ -6,7 +6,7 @@
       "defaultRegistryUrlTemplate": "https://api.github.com/repos/stoatchat/for-web/tags?per_page=100",
       "format": "json",
       "transformTemplates": [
-        "{\"releases\": $map($filter($, function($v){$contains($v.name, \"stoat-for-web-v\")}), function($v){{\"version\": $substringAfter($v.name, \"stoat-for-web-v\"), \"digest\": $substring($v.commit.sha, 0, 7)}}), \"sourceUrl\": \"https://github.com/stoatchat/for-web\"}"
+        "{\"releases\": $map($filter($, function($v){$contains($v.name, \"stoat-for-web-v\")}), function($v){ {\"version\": $substringAfter($v.name, \"stoat-for-web-v\"), \"digest\": $substring($v.commit.sha, 0, 7)} }), \"sourceUrl\": \"https://github.com/stoatchat/for-web\"}"
       ]
     }
   },
