@@ -140,6 +140,9 @@ config:
     autumn = "https://{{ .Values.global.domain }}/autumn"
     january = "https://{{ .Values.global.domain }}/january"
     gifbox = "https://{{ .Values.global.domain }}/gifbox"
+    {{- if .Values.assets.enabled }}
+    assets = "https://{{ .Values.global.domain }}/stoat-assets"
+    {{- end }}
 
     [hosts.livekit]
     worldwide = "wss://{{ .Values.global.domain }}/livekit"
@@ -335,3 +338,21 @@ wellKnown:
       memory: 16Mi
     limits:
       memory: 64Mi
+
+# Instance branding served at /stoat-assets/ by the well-known nginx and
+# advertised as `hosts.assets` in Revolt.toml (mirrors self-hosted#309).
+# An init container fetches `ref` of `repository` on every pod start, so
+# GitHub (or your fork's host) must be reachable. Point `repository`/`ref` at
+# a fork of whitelabel-assets for custom branding; it must keep every file of
+# the upstream layout, for-web expects all of them.
+assets:
+  enabled: true
+  repository: https://github.com/stoatchat/whitelabel-assets.git
+  ref: e091f5a5a9e226706229d2213f65d81ac93306e1
+  image: alpine/git:v2.52.0
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi

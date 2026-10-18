@@ -1,5 +1,9 @@
+{{- if and .Values.assets.enabled (not .Values.wellKnown.enabled) }}
+{{- fail "assets.enabled=true requires wellKnown.enabled=true (the well-known nginx serves /stoat-assets)" }}
+{{- end }}
 {{- if .Values.wellKnown.enabled }}
 {{- $cfg := .Values.wellKnown }}
+{{- $assets := .Values.assets }}
 {{- $nginxConf := include "stoatchat.wellKnownNginxConf" . }}
 apiVersion: v1
 kind: ConfigMap
@@ -32,8 +36,35 @@ spec:
         app.kubernetes.io/component: well-known
       annotations:
         checksum/config: {{ $nginxConf | sha256sum }}
+        {{- if $assets.enabled }}
+        stoatchat/assets-source: {{ printf "%s@%s" $assets.repository $assets.ref | quote }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "stoatchat.serviceAccountName" . }}
+      {{- if $assets.enabled }}
+      initContainers:
+        - name: fetch-assets
+          image: {{ $assets.image | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - >-
+              set -e;
+              tmp=$(mktemp -d);
+              git -C "$tmp" init -q;
+              git -C "$tmp" remote add origin {{ $assets.repository | quote }};
+              git -C "$tmp" fetch --depth 1 origin {{ $assets.ref | quote }};
+              git -C "$tmp" checkout -q FETCH_HEAD;
+              rm -rf "$tmp/.git";
+              cp -R "$tmp/." /srv/assets/
+          {{- with $assets.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: assets
+              mountPath: /srv/assets
+      {{- end }}
       {{- with $cfg.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -66,10 +97,19 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
+            {{- if $assets.enabled }}
+            - name: assets
+              mountPath: /srv/assets
+              readOnly: true
+            {{- end }}
       volumes:
         - name: nginx-config
           configMap:
             name: {{ include "stoatchat.fullname" . }}-well-known
+        {{- if $assets.enabled }}
+        - name: assets
+          emptyDir: {}
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service

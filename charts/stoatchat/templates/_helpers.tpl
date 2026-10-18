@@ -160,5 +160,17 @@ server {
         add_header Access-Control-Allow-Origin * always;
         return 200 '{{ dict "api" (printf "https://%s/api" (include "stoatchat.ingressHost" .)) | toJson }}';
     }
+    {{- if .Values.assets.enabled }}
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location /stoat-assets/ {
+        alias /srv/assets/;
+        add_header Cache-Control no-cache always;
+        add_header Access-Control-Allow-Origin * always;
+    }
+    {{- end }}
 }
 {{- end -}}

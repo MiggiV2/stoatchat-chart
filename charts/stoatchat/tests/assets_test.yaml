@@ -1,0 +1,144 @@
+suite: stoat-assets route
+templates:
+  - well-known.yaml
+  - ingress.yaml
+  - configmap-revolt.yaml
+set:
+  global.domain: chat.example.org
+tests:
+  - it: serves the assets directory under /stoat-assets/ with no-cache and open CORS
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: ConfigMap
+    asserts:
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "location /stoat-assets/ \\{\\s+alias /srv/assets/;"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "add_header Cache-Control no-cache always"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "location /stoat-assets/ \\{[^}]*add_header Access-Control-Allow-Origin \\* always"
+      - matchRegex:
+          path: data["default.conf"]
+          pattern: "location ~ /\\\\\\. \\{\\s+deny all;"
+
+  - it: fetches the pinned whitelabel-assets ref in an init container without serving .git
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].image
+          pattern: "^alpine/git:"
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "https://github\\.com/stoatchat/whitelabel-assets\\.git"
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "fetch --depth 1 origin \"e091f5a5a9e226706229d2213f65d81ac93306e1\""
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "rm -rf \"\\$tmp/\\.git\""
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "cp -R \"\\$tmp/\\.\" /srv/assets/"
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: assets
+            mountPath: /srv/assets
+            readOnly: true
+
+  - it: lets operators point at their own fork and ref
+    template: well-known.yaml
+    set:
+      assets.repository: https://git.example.org/me/whitelabel-assets.git
+      assets.ref: my-branding
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "https://git\\.example\\.org/me/whitelabel-assets\\.git"
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].args[0]
+          pattern: "fetch --depth 1 origin \"my-branding\""
+
+  - it: rolls the pod when the assets ref changes
+    template: well-known.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    set:
+      assets.ref: other-ref
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["stoatchat/assets-source"]
+          value: https://github.com/stoatchat/whitelabel-assets.git@other-ref
+
+  - it: routes /stoat-assets to the well-known service
+    template: ingress.yaml
+    asserts:
+      - contains:
+          path: spec.rules[0].http.paths
+          content:
+            path: /stoat-assets
+            pathType: Prefix
+            backend:
+              service:
+                name: RELEASE-NAME-stoatchat-well-known
+                port:
+                  number: 8080
+
+  - it: advertises the assets URL in Revolt.toml
+    template: configmap-revolt.yaml
+    asserts:
+      - matchRegex:
+          path: data["Revolt.toml"]
+          pattern: "assets = \"https://chat\\.example\\.org/stoat-assets\""
+
+  - it: drops route, init container and Revolt.toml entry when disabled
+    set:
+      assets.enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers
+        template: well-known.yaml
+        documentSelector:
+          path: kind
+          value: Deployment
+      - notMatchRegex:
+          path: data["default.conf"]
+          pattern: "stoat-assets"
+        template: well-known.yaml
+        documentSelector:
+          path: kind
+          value: ConfigMap
+      - notContains:
+          path: spec.rules[0].http.paths
+          content:
+            path: /stoat-assets
+            pathType: Prefix
+            backend:
+              service:
+                name: RELEASE-NAME-stoatchat-well-known
+                port:
+                  number: 8080
+        template: ingress.yaml
+      - notMatchRegex:
+          path: data["Revolt.toml"]
+          pattern: "stoat-assets"
+        template: configmap-revolt.yaml
+
+  - it: refuses assets without the well-known nginx that serves them
+    template: well-known.yaml
+    set:
+      wellKnown.enabled: false
+    asserts:
+      - failedTemplate:
+          errorPattern: "assets.enabled=true requires wellKnown.enabled=true"

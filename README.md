@@ -18,6 +18,12 @@ This repository provides a custom Helm chart for deploying Stoatchat based on th
   small nginx answers `{"api":"https://<host>/api"}` with
   `Access-Control-Allow-Origin: *`, like the upstream Caddyfile, so multi-instance
   web clients hosted elsewhere can resolve this instance
+- Instance branding at `/stoat-assets/` (`assets.enabled`, default on), served by
+  the same nginx and advertised as `hosts.assets`, like upstream self-hosted#309.
+  An init container fetches a pinned commit of
+  [`stoatchat/whitelabel-assets`](https://github.com/stoatchat/whitelabel-assets)
+  on pod start (needs outbound access to GitHub); set `assets.repository` /
+  `assets.ref` to use a fork with your own branding
 - Config and secret wiring:
   - `Revolt.toml` via ConfigMap
   - app secrets via Secret env vars (same key names used by `secrets.env`)

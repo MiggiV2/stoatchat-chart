@@ -85,6 +85,7 @@ tests:
   - it: renders nothing and adds no route when disabled
     set:
       wellKnown.enabled: false
+      assets.enabled: false
     asserts:
       - hasDocuments:
           count: 0
