@@ -312,7 +312,7 @@ components:
       turnTlsPort: 5349
   web:
     enabled: true
-    image: ghcr.io/stoatchat/for-web:f080e84 # v0.16.3
+    image: ghcr.io/stoatchat/for-web:9fd140a # v0.17.0
     replicaCount: 1
     port: 5000
     resources:
