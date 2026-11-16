@@ -1,7 +1,7 @@
 dependencies:
 - name: mongodb
   repository: https://charts.bitnami.com/bitnami
-  version: 19.3.3
+  version: 20.0.20
 - name: valkey
   repository: https://groundhog2k.github.io/helm-charts
   version: 2.3.5
@@ -10,6 +10,6 @@ dependencies:
   version: 2.3.10
 - name: rustfs
   repository: https://rustfs.github.io/helm
-  version: 0.12.0
-digest: sha256:46de3806c7a7bad751c4d411f5a8a411b5850756634bdbc46e0d52a218c0918a
-generated: "2026-10-30T11:12:46.09678442Z"
+  version: 1.0.6
+digest: sha256:fa6f9126314fb905d5fe0c7f1105febbe08074157e144323681909cf7d87e9d4
+generated: "2026-11-19T10:19:36.14414527+01:00"
